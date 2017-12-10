@@ -1,0 +1,30 @@
+package com.whatever.gameoflife;
+
+import java.awt.*;
+import javax.swing.*;
+
+public class GameCanvas extends JPanel{
+	private static int canvasWidth;
+	private static int canvasHeight;
+	private static int cellSize;
+	
+	 public GameCanvas(int canvasWidth, int canvasHeight, int cellSize) 
+	 {  
+	 	this.canvasWidth = canvasWidth;
+	 	this.canvasHeight = canvasHeight;
+	 	this.cellSize = cellSize;
+	    setBackground (Color.WHITE);
+	    setSize(canvasWidth, canvasHeight);
+	 }  
+	  public void paint(Graphics g)  
+	  {  
+		  for(int i = 0; i < canvasWidth; i++) {
+		    	for(int j = 0; j < canvasHeight; j++) {
+		    		g.setColor(Color.lightGray);
+		    		g.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+		    	}
+		    }
+	  }  
+
+
+}
