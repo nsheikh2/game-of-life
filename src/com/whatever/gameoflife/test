@@ -1,0 +1,16 @@
+package com.whatever.gameoflife;
+
+import java.awt.*;
+
+import javax.swing.*;
+
+public class test extends JFrame{
+
+
+	public static void main(String[] args)
+	{
+		Board board = new Board(5, 5, 20);
+		board.canvas();
+	}
+		
+}
