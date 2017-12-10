@@ -1,0 +1,34 @@
+package com.whatever.gameoflife;
+import java.applet.Applet;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.image.ImageObserver;
+import java.text.AttributedCharacterIterator;
+
+public class Cell extends Applet{
+
+	int row;
+	int column;
+	Color color;
+	
+	public Cell(int row, int column, Color color) {
+		this.row = row;
+		this.column = column;
+		this.color = color;
+	}
+	
+	public boolean isAlive() { return !color.equals(Color.GRAY); }
+	public Color getColor() { return color; }
+	public void setColor(Color color) { this.color = color; }
+	
+	public void paint(Graphics g, int w, int h) {
+		g.setColor(color);
+		g.fillRect(0,  0, w, h);
+	}
+}
+	
