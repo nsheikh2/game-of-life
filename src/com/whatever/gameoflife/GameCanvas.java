@@ -64,8 +64,6 @@ public class GameCanvas extends JPanel {
         this.paused = true;
 
         this.requestFocusInWindow();
-
-        //gotta <3 anonymous classes
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
