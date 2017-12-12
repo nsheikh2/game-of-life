@@ -9,23 +9,20 @@ public class Main {
 
 	public static void main(String[] args)
 	{
-
-	    //Set up components
+	    //Set up components, reasonable defaults
 	    GameCanvas gc = new GameCanvas(400, 400, 10);
+	    gc.setTimeStep(100);
 	    gc.startGame();
 
-	    //frame setup
+	    //window setup
 	    JFrame frame = new JFrame();
 	    frame.setResizable(true);
 	    frame.setTitle("Game of Life");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.requestFocus();
-
-	    //has a hard time working inside GameCanvas for some reason, hmm
         frame.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println("\"" + e.getKeyChar() + "\" key pressed");
                 switch(e.getKeyChar()) {
                 case ' ':
                     gc.togglePause();

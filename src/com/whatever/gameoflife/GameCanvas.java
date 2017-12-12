@@ -12,23 +12,44 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+/**
+ * Game canvas class - holds the board, etc.
+ */
 public class GameCanvas extends JPanel {
-    //constants
+
+    /** Color of a living cell */
     private Color ALIVE_COLOR   = Color.BLACK;
+
+    /** Color of a dead cell */
     private Color DEAD_COLOR    = Color.WHITE;
 
-    //instance variables
+    /** Size of each cell, in pixels */
     private int cellSize;
-    private int[][] cells;
-    private int[][] buffer;
+
+    /** Current generation of the game. */
+    private int[][] currGen;
+
+    /** Next generation of the game. */
+    private int[][] nextGen;
+
+    /** Number of currGen horizontally. */
     private int dimensionX;
+
+    /** Number of currGen vertically. */
     private int dimensionY;
 
-    //vars
-    private int timeStep;    //board update step in milliseconds
-    private long prevTime;
+    /** Board update step in milliseconds */
+    private int timeStep;
+
+    /** Game paused? */
     private boolean paused;
 
+    /**
+     * Constructor for GameCanvas
+     * @param canvasWidth canvas width
+     * @param canvasHeight canvas height
+     * @param cellSize size of cell
+     */
     public GameCanvas(int canvasWidth, int canvasHeight, int cellSize)
     {
         setBackground(Color.WHITE);
@@ -38,11 +59,9 @@ public class GameCanvas extends JPanel {
         this.cellSize = cellSize;
         this.dimensionX = canvasWidth / cellSize;
         this.dimensionY = canvasHeight / cellSize;
-        this.cells = new int[dimensionX][dimensionY];
-        this.buffer = new int[dimensionX][dimensionY];
-
+        this.currGen = new int[dimensionX][dimensionY];
+        this.nextGen = new int[dimensionX][dimensionY];
         this.timeStep = 100;
-        this.prevTime = System.currentTimeMillis();
         this.paused = true;
 
         this.requestFocusInWindow();
@@ -51,44 +70,56 @@ public class GameCanvas extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int[] coords = mouseToBoard(e.getX(), e.getY(), cellSize, new int[] {dimensionX, dimensionY});
-                toggleCell(coords[0], coords[1], cells);
+                int[] coords = mouseToBoard(e.getX(), e.getY(), cellSize, new int[] { dimensionX, dimensionY });
+                toggleCell(coords[0], coords[1], currGen);
                 repaint();
             }
         });
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent arg0) {
-                int[] coords = mouseToBoard(arg0.getX(), arg0.getY(), cellSize, new int[] {dimensionX, dimensionY});
-                setCell(coords[0], coords[1], cells);
+                int[] coords = mouseToBoard(arg0.getX(), arg0.getY(), cellSize, new int[] { dimensionX, dimensionY });
+                setCell(coords[0], coords[1], currGen);
                 repaint();
             }
             @Override
             public void mouseMoved(MouseEvent arg0) { }
         });
     }
-    public GameCanvas(int canvasWidth, int canvasHeight, int cellSize, int timeStep) {
-        this(canvasWidth, canvasHeight, cellSize);
+
+    /**
+     * Gets time step.
+     * @return time step
+     */
+    public int getTimeStep() {
+        return timeStep;
+    }
+    /**
+     * Sets time step.
+     * @param timeStep time step to set
+     */
+    public void setTimeStep(int timeStep) {
         this.timeStep = timeStep;
     }
 
+    /**
+     * Starts the game.
+     */
     public void startGame() {
         //while loop was hanging thread, using timer instead
         new Timer(timeStep, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if (paused) {
-                    prevTime = System.currentTimeMillis();
-                } else {
-                    if (System.currentTimeMillis() - prevTime >= timeStep) {
-                        prevTime = System.currentTimeMillis();
-                        update();
-                    }
+                if (!paused) {
+                    update();
                 }
             }
         }).start();
     }
 
+    /**
+     * Toggles the status of the game from paused to unpaused.
+     */
     public void togglePause() {
         paused = !paused;
     }
@@ -98,7 +129,7 @@ public class GameCanvas extends JPanel {
     {
         for (int i = 0; i < dimensionX; i++) {
             for (int j = 0; j < dimensionY; j++) {
-                if (cells[i][j] == 1) {
+                if (currGen[i][j] == 1) {
                     g.setColor(ALIVE_COLOR);
                 } else {
                     g.setColor(DEAD_COLOR);
@@ -111,52 +142,59 @@ public class GameCanvas extends JPanel {
         }
     }
 
-    public void printArray(int[][] array) {
-        System.out.print("[ ");
-        for (int i = 0; i < dimensionX; i++) {
-            for (int j = 0; j < dimensionY; j++) {
-                System.out.print(getCell(i, j, array) + " ");
-            }
-            System.out.print("|");
-        }
-        System.out.println("]");
-    }
-
+    /**
+     * Updates the board.
+     */
     public void update() {
-        clear(buffer);
-        pushCells(cells, buffer);
+        clear(nextGen);
+        pushCells(currGen, nextGen);
         for (int i = 0; i < dimensionX; i++) {
             for (int j = 0; j < dimensionY; j++) {
-                int neighbors = getLiveNeighbors(i, j, cells);
-                if (neighbors < 2) {
-                    unsetCell(i, j, buffer);    //underpopulation
-                } else if (neighbors == 3) {         //if 2 just leave it alone, if 3 reanimate dead cell
-                    setCell(i, j, buffer);
+                int neighbors = getLiveNeighbors(i, j, currGen);
+                if (neighbors == 2) {
+                    //if two just leave alone
+                    continue;
+                } else if (neighbors < 2) {
+                    //underpopulation
+                    unsetCell(i, j, nextGen);
+                } else if (neighbors == 3) {
+                    //reanimate dead cell
+                    setCell(i, j, nextGen);
                 } if (neighbors > 3) {
-                    unsetCell(i, j, buffer);    //overcrowding
+                    //overcrowding
+                    unsetCell(i, j, nextGen);
                 }
             }
         }
-        clear(cells);
-        pushCells(buffer, cells);
+        clear(currGen);
+        pushCells(nextGen, currGen);
         repaint();
     }
 
-    public static int[] mouseToBoard(int mX, int mY, int cellSize, int[] dimension) {
+    /**
+     * Converts a mouse coordinate on the board into a board coordinate.
+     * @param mX mouse x
+     * @param mY mouse y
+     * @param cellSize size of cell
+     * @param dimension array of board dimensions { x, y }
+     * @return
+     */
+    public static int[] mouseToBoard(int mX, int mY, int cellSize, int[] dimensions) {
         int adjX = (int) Math.floor((double) mX / (double) cellSize);
         int adjY = (int) Math.floor((double) mY / (double) cellSize);
-        boolean okayX = adjX <= dimension[0] - 1;    //less than zero doesn't happen
-        boolean okayY = adjY <= dimension[1] - 1;
+        boolean okayX = adjX <= dimensions[0] - 1;    //less than zero doesn't happen
+        boolean okayY = adjY <= dimensions[1] - 1;
         int[] toReturn = {adjX, adjY};
-        if (!okayX) toReturn[0] = dimension[0] - 1;
-        if (!okayY) toReturn[1] = dimension[1] - 1;
+        if (!okayX) toReturn[0] = dimensions[0] - 1;
+        if (!okayY) toReturn[1] = dimensions[1] - 1;
         return toReturn;
     }
 
     /**
-     *
+     * Gets a cell.
      * @param x x-val
      * @param y y-val
+     * @param cells cell grid
      * @return 1 if cell @ (x,y) is alive, else 0
      */
     public int getCell(int x, int y, int[][] cells) {
@@ -171,6 +209,12 @@ public class GameCanvas extends JPanel {
         return cells[x][y];
     }
 
+    /**
+     * Sets a cell to be alive.
+     * @param x cell x-val
+     * @param y cell y-val
+     * @param cells cell grid
+     */
     public void setCell(int x, int y, int[][] cells) {
         boolean validX = x >= 0 && x <= dimensionX - 1;
         boolean validY = y >= 0 && y <= dimensionY - 1;
@@ -181,6 +225,12 @@ public class GameCanvas extends JPanel {
         repaint();
     }
 
+    /**
+     * Sets a cell to be dead.
+     * @param x cell x-val
+     * @param y cell y-val
+     * @param cells cell grid
+     */
     public void unsetCell(int x, int y, int[][] cells) {
         boolean validX = x >= 0 && x <= dimensionX - 1;
         boolean validY = y >= 0 && y <= dimensionY - 1;
@@ -191,6 +241,12 @@ public class GameCanvas extends JPanel {
         repaint();
     }
 
+    /**
+     * Toggles a cell dead or alive.
+     * @param x cell x-val
+     * @param y cell y-val
+     * @param cells cell grid
+     */
     public void toggleCell(int x, int y, int[][] cells) {
         if (getCell(x, y, cells) == 1) {
             unsetCell(x, y, cells);
@@ -199,6 +255,13 @@ public class GameCanvas extends JPanel {
         }
     }
 
+    /**
+     * Finds all living neighbors of a given cell.
+     * @param x cell x-val
+     * @param y cell y-val
+     * @param cells cell grid
+     * @return the number of living neighbors
+     */
     private int getLiveNeighbors(int x, int y, int[][] cells) {
         int toReturn = 0;
         for (int i = x - 1; i <= x + 1; i++) {        //get entire 3x3 grid around curr cell, including curr cell
@@ -223,6 +286,10 @@ public class GameCanvas extends JPanel {
         }
     }
 
+    /**
+     * Clears a grid of cells
+     * @param currGen the grid of cells to clear
+     */
     public void clear(int[][] cells) {
         for (int i = 0; i < dimensionX; i++) {
             for (int j = 0; j < dimensionY; j++) {
@@ -232,18 +299,25 @@ public class GameCanvas extends JPanel {
         repaint();
     }
 
+    /**
+     * Clears both the current and next generation of currGen.
+     */
     public void clearAll() {
-        clear(cells);
-        clear(buffer);
+        clear(currGen);
+        clear(nextGen);
     }
 
+    /**
+     * Clears the board and randomizes the current generation
+     * @param probability chance that any given cell will be alive
+     */
     public void randomize(float probability) {
         clearAll();
         for (int i = 0; i < dimensionX; i++) {
             for (int j = 0; j < dimensionY; j++) {
                 double val = Math.random();
                 if (val <= probability) {
-                    setCell(i, j, cells);
+                    setCell(i, j, currGen);
                 }
             }
         }
