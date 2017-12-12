@@ -50,8 +50,7 @@ public class GameCanvas extends JPanel {
      * @param canvasHeight canvas height
      * @param cellSize size of cell
      */
-    public GameCanvas(int canvasWidth, int canvasHeight, int cellSize)
-    {
+    public GameCanvas(int canvasWidth, int canvasHeight, int cellSize) {
         setBackground(Color.WHITE);
         setSize(canvasWidth, canvasHeight);
         setPreferredSize(new Dimension(canvasWidth, canvasHeight));
