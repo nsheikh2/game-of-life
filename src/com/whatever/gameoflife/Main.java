@@ -22,20 +22,20 @@ public class Main {
         frame.requestFocus();
         frame.addKeyListener(new KeyListener() {
             @Override
-                public void keyPressed(KeyEvent e) {
-                    switch(e.getKeyChar()) {
-                    case ' ':
-                        gc.togglePause();
-                        break;
-                    case 'r':
-                        gc.randomize((float) Math.random());
-                        break;
-                    case 'c':
-                        gc.clearAll();
-                    default:
-                        break;
-                    }
+            public void keyPressed(KeyEvent e) {
+                switch(e.getKeyChar()) {
+                case ' ':
+                    gc.togglePause();
+                    break;
+                case 'r':
+                    gc.randomize((float) Math.random());
+                    break;
+                case 'c':
+                    gc.clearAll();
+                default:
+                    break;
                 }
+            }
             @Override
             public void keyReleased(KeyEvent arg0) { }
             @Override
