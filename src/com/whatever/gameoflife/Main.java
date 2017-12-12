@@ -7,15 +7,14 @@ import javax.swing.JFrame;
 
 public class Main {
 
-    public static void main(String[] args)
-    {
-	//Set up components, reasonable defaults
-	GameCanvas gc = new GameCanvas(400, 400, 10);
-	gc.setTimeStep(100);
-	gc.startGame();
-        
+    public static void main(String[] args) {
+        //Set up components, reasonable defaults
+        GameCanvas gc = new GameCanvas(400, 400, 10);
+        gc.setTimeStep(100);
+        gc.startGame();
+            
         //window setup
-	JFrame frame = new JFrame();
+        JFrame frame = new JFrame();
         frame.setResizable(true);
         frame.setTitle("Game of Life");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
