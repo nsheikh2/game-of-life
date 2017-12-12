@@ -14,15 +14,15 @@ import javax.swing.Timer;
 
 public class GameCanvas extends JPanel {
     //constants
-	private Color ALIVE_COLOR   = Color.BLACK;
-	private Color DEAD_COLOR    = Color.WHITE;
+    private Color ALIVE_COLOR   = Color.BLACK;
+    private Color DEAD_COLOR    = Color.WHITE;
 
-	//instance variables
-	private int cellSize;
-	private int[][] cells;
-	private int[][] buffer;
-	private int dimensionX;
-	private int dimensionY;
+    //instance variables
+    private int cellSize;
+    private int[][] cells;
+    private int[][] buffer;
+    private int dimensionX;
+    private int dimensionY;
 
     //vars
     private int timeStep;    //board update step in milliseconds
@@ -30,24 +30,24 @@ public class GameCanvas extends JPanel {
     private boolean paused;
 
     public GameCanvas(int canvasWidth, int canvasHeight, int cellSize)
-	{
-	    setBackground(Color.WHITE);
-	    setSize(canvasWidth, canvasHeight);
-	    setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+    {
+        setBackground(Color.WHITE);
+        setSize(canvasWidth, canvasHeight);
+        setPreferredSize(new Dimension(canvasWidth, canvasHeight));
 
-	 	this.cellSize = cellSize;
-	    this.dimensionX = canvasWidth / cellSize;
-	    this.dimensionY = canvasHeight / cellSize;
-	    this.cells = new int[dimensionX][dimensionY];
-	    this.buffer = new int[dimensionX][dimensionY];
+        this.cellSize = cellSize;
+        this.dimensionX = canvasWidth / cellSize;
+        this.dimensionY = canvasHeight / cellSize;
+        this.cells = new int[dimensionX][dimensionY];
+        this.buffer = new int[dimensionX][dimensionY];
 
-	    this.timeStep = 100;
+        this.timeStep = 100;
         this.prevTime = System.currentTimeMillis();
-	    this.paused = true;
+        this.paused = true;
 
-	    this.requestFocusInWindow();
+        this.requestFocusInWindow();
 
-	    //gotta <3 anonymous classes
+        //gotta <3 anonymous classes
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -66,15 +66,15 @@ public class GameCanvas extends JPanel {
             @Override
             public void mouseMoved(MouseEvent arg0) { }
         });
-	}
-	public GameCanvas(int canvasWidth, int canvasHeight, int cellSize, int timeStep) {
-	    this(canvasWidth, canvasHeight, cellSize);
-	    this.timeStep = timeStep;
-	}
+    }
+    public GameCanvas(int canvasWidth, int canvasHeight, int cellSize, int timeStep) {
+        this(canvasWidth, canvasHeight, cellSize);
+        this.timeStep = timeStep;
+    }
 
-	public void startGame() {
+    public void startGame() {
         //while loop was hanging thread, using timer instead
-	    new Timer(timeStep, new ActionListener() {
+        new Timer(timeStep, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 if (paused) {
@@ -86,17 +86,17 @@ public class GameCanvas extends JPanel {
                     }
                 }
             }
-	    }).start();
-	}
+        }).start();
+    }
 
-	public void togglePause() {
-	    paused = !paused;
-	}
+    public void togglePause() {
+        paused = !paused;
+    }
 
-	@Override
+    @Override
     public void paint(Graphics g)
-	{
-	    for (int i = 0; i < dimensionX; i++) {
+    {
+        for (int i = 0; i < dimensionX; i++) {
             for (int j = 0; j < dimensionY; j++) {
                 if (cells[i][j] == 1) {
                     g.setColor(ALIVE_COLOR);
@@ -108,19 +108,19 @@ public class GameCanvas extends JPanel {
                 g.setColor(Color.BLACK);
                 g.drawRect(i * cellSize, j * cellSize, cellSize, cellSize);
             }
-		}
-	}
+        }
+    }
 
-	public void printArray(int[][] array) {
-	    System.out.print("[ ");
-	    for (int i = 0; i < dimensionX; i++) {
-	        for (int j = 0; j < dimensionY; j++) {
-	            System.out.print(getCell(i, j, array) + " ");
-	        }
-	        System.out.print("|");
-	    }
+    public void printArray(int[][] array) {
+        System.out.print("[ ");
+        for (int i = 0; i < dimensionX; i++) {
+            for (int j = 0; j < dimensionY; j++) {
+                System.out.print(getCell(i, j, array) + " ");
+            }
+            System.out.print("|");
+        }
         System.out.println("]");
-	}
+    }
 
     public void update() {
         clear(buffer);
@@ -153,23 +153,23 @@ public class GameCanvas extends JPanel {
         return toReturn;
     }
 
-	/**
-	 *
-	 * @param x x-val
-	 * @param y y-val
-	 * @return 1 if cell @ (x,y) is alive, else 0
-	 */
-	public int getCell(int x, int y, int[][] cells) {
-	    //if outside board, it is dead
-	    if (x > dimensionX - 1 || y > dimensionY - 1) {
-	        return 0;
-	    }
-	    if (x < 0 || y < 0) {
-	        return 0;
-	    }
+    /**
+     *
+     * @param x x-val
+     * @param y y-val
+     * @return 1 if cell @ (x,y) is alive, else 0
+     */
+    public int getCell(int x, int y, int[][] cells) {
+        //if outside board, it is dead
+        if (x > dimensionX - 1 || y > dimensionY - 1) {
+            return 0;
+        }
+        if (x < 0 || y < 0) {
+            return 0;
+        }
 
-	    return cells[x][y];
-	}
+        return cells[x][y];
+    }
 
     public void setCell(int x, int y, int[][] cells) {
         boolean validX = x >= 0 && x <= dimensionX - 1;
@@ -232,10 +232,10 @@ public class GameCanvas extends JPanel {
         repaint();
     }
 
-	public void clearAll() {
-	    clear(cells);
-	    clear(buffer);
-	}
+    public void clearAll() {
+        clear(cells);
+        clear(buffer);
+    }
 
     public void randomize(float probability) {
         clearAll();
